@@ -1,4 +1,5 @@
 import { useState } from "react";
+import emailjs from "emailjs-com";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -6,6 +7,7 @@ const ContactForm = () => {
     email: "",
     message: "",
   });
+  const [status, setStatus] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -13,14 +15,36 @@ const ContactForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("form submitted", formData);
-    alert("Message sent successfully");
-    setFormData({ name: "", email: "", message: "" });
+
+    // Using EmailJS to send the email
+    emailjs
+      .send(
+        "service_c29eeun", // Your service ID from EmailJS
+        "template_djvmz5s", // Your template ID from EmailJS
+        formData, // Data to send in the email
+        "tR1LhAiEvbeQbjh7n" // Your user ID from EmailJS
+      )
+      .then(
+        (response) => {
+          console.log("Email sent successfully:", response);
+          setStatus("Message sent successfully");
+          setFormData({ name: "", email: "", message: "" }); // Clear form
+        },
+        (error) => {
+          console.log("Error sending email:", error);
+          setStatus("Failed to send message. Please try again later.");
+        }
+      );
   };
 
   return (
-    <div className="max-w-4xl border border-opacity-10 mx-auto my-12 p-6 shadow-md rounded-lg" style={{backgroundColor: "rgba(28, 36, 46, 0.9)"}}>
-      <h2 className="text-3xl text-white font-bold text-center mb-6">Contact Us</h2>
+    <div
+      className="max-w-4xl border border-opacity-10 mx-auto my-12 p-6 shadow-md rounded-lg"
+      style={{ backgroundColor: "rgba(28, 36, 46, 0.9)" }}
+    >
+      <h2 className="text-3xl text-white font-bold text-center mb-6">
+        Contact Us
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
@@ -56,6 +80,13 @@ const ContactForm = () => {
           Send Message
         </button>
       </form>
+
+      {/* Status Message */}
+      {status && (
+        <div className="mt-4 text-center text-white">
+          <p className="text-white">{status}</p>
+        </div>
+      )}
     </div>
   );
 };
